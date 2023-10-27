@@ -1,0 +1,82 @@
+import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+
+url = 'https://www.flipkart.com/search?p%5B%5D=facets.brand%255B%255D%3DSamsung&sid=tyy%2F4io&sort=recency_desc&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InRpdGxlIjp7Im11bHRpVmFsdWVkQXR0cmlidXRlIjp7ImtleSI6InRpdGxlIiwiaW5mZXJlbmNlVHlwZSI6IlRJVExFIiwidmFsdWVzIjpbIkxhdGVzdCBTYW1zdW5nIG1vYmlsZXMgIl0sInZhbHVlVHlwZSI6Ik1VTFRJX1ZBTFVFRCJ9fX19fQ%3D%3D&wid=1.productCard.PMU_V2_1'
+res = requests.get(url)
+status = res.status_code 
+print(status)
+
+#Contains Raw Html Data.
+doc = res.text
+
+#Using Beautiful Soup and Parsed Data.
+soup = BeautifulSoup(doc, 'html.parser')
+
+#We will fetch Title
+title = soup.find_all('div', class_ = '_4rR01T')
+title[0].text
+
+#We will fetch Description
+description = soup.find_all('div', class_ = 'fMghEO')
+description[0].text
+
+#We will fetch Price.
+price = soup.find_all('div', class_ = '_30jeq3 _1_WHN1')
+price[0].text
+
+#We will fetch Ratings
+rating = soup.find_all('div', class_ = '_3LWZlK')
+rating[0].text
+
+#Fetching Final TITLE Data.
+TitleList = []
+
+for titles in title:
+    TitleList.append(titles.text)
+    
+TitleList
+
+#Fetching Final Description Data.
+DescriptionList = []
+
+for desc in description:
+    DescriptionList.append(desc.text)
+    
+DescriptionList
+
+#Fetching Final Price Data
+PriceList = []
+
+for pri in price:
+    PriceList.append(pri.text)
+    
+PriceList
+
+#Fetching FINAL Rating Data
+RatingList = []
+
+for rat in rating:
+    RatingList.append(rat.text)
+    
+RatingList
+
+#Converting this Informal Data into DataFrame.
+FinalData = {
+    'Title' : TitleList,
+    'Description' : DescriptionList,
+    'Price' : PriceList,
+    'Ratings' : RatingList
+}
+
+# df = pd.DataFrame(FinalData)
+# df2 = df.replace(r'^\s*$', np.nan, regex=True)
+# # df = df.fillna(value=np.nan)
+# df2
+
+
+df = pd.DataFrame.from_dict(FinalData, orient='index')
+df.transpose()
+
+#Export this DataFrame into .csv File
+df.to_csv('SamsungMobileData.csv')
